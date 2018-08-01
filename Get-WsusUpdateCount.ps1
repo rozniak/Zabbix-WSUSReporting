@@ -6,13 +6,13 @@
     This script is extremely simple as it is simply used to return a standard integer
     value that represents the count of updates matching the specified criteria.
 
-    .PARAMETER approval
+    .PARAMETER UpdateApproval
     The approval state of updates to count. (Choices: AnyExceptDeclined,
                                                       Approved,
                                                       Declined,
                                                       Unapproved)
 
-    .PARAMETER status
+    .PARAMETER UpdateStatus
     The status of updates to count. (Choices: Any,
                                               Failed,
                                               FailedOrNeeded,
