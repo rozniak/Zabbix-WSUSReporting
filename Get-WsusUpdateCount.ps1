@@ -99,8 +99,8 @@ switch ($UpdateStatus)
     "FailedOrNeeded" {
         $scope.IncludedInstallationStates =
             [Microsoft.UpdateServices.Administration.UpdateInstallationStates]::Failed -bor
-            [Microsoft.UpdateServices.Administration.UpdateInstallationStates]::NotInstalled;
-            #[Microsoft.UpdateServices.Administration.UpdateInstallationStates]::InstalledPendingReboot;
+            [Microsoft.UpdateServices.Administration.UpdateInstallationStates]::NotInstalled -bor
+            [Microsoft.UpdateServices.Administration.UpdateInstallationStates]::InstalledPendingReboot;
     }
 
     "InstalledOrNotApplicable" {
