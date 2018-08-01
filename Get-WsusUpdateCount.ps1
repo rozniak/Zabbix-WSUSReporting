@@ -58,6 +58,10 @@ $scope = New-Object -TypeName Microsoft.UpdateServices.Administration.UpdateScop
 #
 switch ($UpdateApproval)
 {
+    "Any" {
+        $scope.ApprovedStates = [Microsoft.UpdateServices.Administration.ApprovedStates]::Any
+    }
+
     "AnyExceptDeclined" {
         $scope.ApprovedStates =
             [Microsoft.UpdateServices.Administration.ApprovedStates]::HasStaleUpdateApprovals -bor

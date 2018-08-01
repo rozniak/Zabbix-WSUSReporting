@@ -110,7 +110,7 @@
                     <type>7</type>
                     <snmp_community/>
                     <snmp_oid/>
-                    <key>wsus.updates[AnyExceptDeclined,Any]</key>
+                    <key>wsus.updates[Any,Any]</key>
                     <delay>30s</delay>
                     <history>90d</history>
                     <trends>365d</trends>
