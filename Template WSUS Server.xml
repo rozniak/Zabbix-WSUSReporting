@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>3.4</version>
-    <date>2018-08-01T14:11:27Z</date>
+    <date>2018-08-01T14:58:03Z</date>
     <groups>
         <group>
             <name>Windows servers</name>
@@ -33,7 +33,7 @@
                     <history>90d</history>
                     <trends>365d</trends>
                     <status>0</status>
-                    <value_type>3</value_type>
+                    <value_type>0</value_type>
                     <allowed_hosts/>
                     <units>GB</units>
                     <snmpv3_contextname/>
