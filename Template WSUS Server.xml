@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>3.4</version>
-    <date>2018-08-01T14:58:03Z</date>
+    <date>2018-08-09T08:02:11Z</date>
     <groups>
         <group>
             <name>Windows servers</name>
@@ -25,11 +25,11 @@
             <items>
                 <item>
                     <name>WSUS content directory size</name>
-                    <type>7</type>
+                    <type>2</type>
                     <snmp_community/>
                     <snmp_oid/>
                     <key>wsus.contentsize</key>
-                    <delay>30s</delay>
+                    <delay>0</delay>
                     <history>90d</history>
                     <trends>365d</trends>
                     <status>0</status>
@@ -66,11 +66,11 @@
                 </item>
                 <item>
                     <name>Computers not reported into WSUS within 30 days</name>
-                    <type>7</type>
+                    <type>2</type>
                     <snmp_community/>
                     <snmp_oid/>
                     <key>wsus.oldcomputers</key>
-                    <delay>30s</delay>
+                    <delay>0</delay>
                     <history>90d</history>
                     <trends>365d</trends>
                     <status>0</status>
@@ -107,11 +107,11 @@
                 </item>
                 <item>
                     <name>Total update count</name>
-                    <type>7</type>
+                    <type>2</type>
                     <snmp_community/>
                     <snmp_oid/>
                     <key>wsus.updates[Any,Any]</key>
-                    <delay>30s</delay>
+                    <delay>0</delay>
                     <history>90d</history>
                     <trends>365d</trends>
                     <status>0</status>
@@ -148,11 +148,11 @@
                 </item>
                 <item>
                     <name>Approved update count</name>
-                    <type>7</type>
+                    <type>2</type>
                     <snmp_community/>
                     <snmp_oid/>
                     <key>wsus.updates[Approved,Any]</key>
-                    <delay>30s</delay>
+                    <delay>0</delay>
                     <history>90d</history>
                     <trends>365d</trends>
                     <status>0</status>
@@ -189,11 +189,11 @@
                 </item>
                 <item>
                     <name>Failed update count</name>
-                    <type>7</type>
+                    <type>2</type>
                     <snmp_community/>
                     <snmp_oid/>
                     <key>wsus.updates[Approved,Failed]</key>
-                    <delay>30s</delay>
+                    <delay>0</delay>
                     <history>90d</history>
                     <trends>365d</trends>
                     <status>0</status>
@@ -230,11 +230,11 @@
                 </item>
                 <item>
                     <name>Unapproved update count</name>
-                    <type>7</type>
+                    <type>2</type>
                     <snmp_community/>
                     <snmp_oid/>
                     <key>wsus.updates[Unapproved,Any]</key>
-                    <delay>30s</delay>
+                    <delay>0</delay>
                     <history>90d</history>
                     <trends>365d</trends>
                     <status>0</status>
@@ -271,11 +271,11 @@
                 </item>
                 <item>
                     <name>Unapproved update count (needed)</name>
-                    <type>7</type>
+                    <type>2</type>
                     <snmp_community/>
                     <snmp_oid/>
                     <key>wsus.updates[Unapproved,Needed]</key>
-                    <delay>30s</delay>
+                    <delay>0</delay>
                     <history>90d</history>
                     <trends>365d</trends>
                     <status>0</status>

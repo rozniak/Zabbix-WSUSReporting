@@ -6,13 +6,13 @@
     This script is extremely simple as it is simply used to return a standard integer
     value that represents the count of updates matching the specified criteria.
 
-    .PARAMETER approval
+    .PARAMETER UpdateApproval
     The approval state of updates to count. (Choices: AnyExceptDeclined,
                                                       Approved,
                                                       Declined,
                                                       Unapproved)
 
-    .PARAMETER status
+    .PARAMETER UpdateStatus
     The status of updates to count. (Choices: Any,
                                               Failed,
                                               FailedOrNeeded,
@@ -20,9 +20,12 @@
                                               InstalledOrNotApplicableOrNoStatus,
                                               Needed,
                                               NoStatus)
+
+    .PARAMETER ZabbixIP
+    The IP address of the Zabbix server/proxy to send the value to.
     
     .EXAMPLE
-    Get-WsusUpdateCount.ps1 -UpdateApproval Approved -UpdateStatus Needed
+    Get-WsusUpdateCount.ps1 -UpdateApproval Approved -UpdateStatus Needed -ZabbixIP 10.0.0.240
 
     .NOTES
     Author: Rory Fewell
@@ -36,7 +39,10 @@ Param (
     $UpdateApproval,
     [Parameter(Position=1, Mandatory=$TRUE)]
     [String]
-    $UpdateStatus
+    $UpdateStatus,
+    [Parameter(Position=2, Mandatory=$TRUE)]
+    [String]
+    $ZabbixIP
 )
 
 # Load WSUS Administration library
@@ -137,4 +143,6 @@ switch ($UpdateStatus)
     }
 }
 
-return $wsusServer.GetUpdateCount($scope);
+# Push value to Zabbix
+#
+& ($env:ProgramFiles + "\Zabbix Agent\bin\win64\zabbix_sender.exe") ("-z", $ZabbixIP, "-p", "10051", "-s", $env:ComputerName, "-k", ("wsus.updates[" + $UpdateApproval + "," + $UpdateStatus + "]"), "-o", $wsusServer.GetUpdateCount($scope))
