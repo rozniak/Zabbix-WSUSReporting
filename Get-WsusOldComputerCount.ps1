@@ -11,6 +11,10 @@
     .PARAMETER ZabbixIP
     The IP address of the Zabbix server/proxy to send the value to.
     
+    .PARAMETER ComputerName
+    The hostname that should be reported to Zabbix, in case the hostname you set up in
+    Zabbix isn't exactly the same as this computer's name.
+    
     .EXAMPLE
     Get-WsusOldComputerCount.ps1 -ZabbixIP 10.0.0.240
 
@@ -24,7 +28,11 @@ Param (
     [Parameter(Position=0, Mandatory=$TRUE)]
     [ValidatePattern("^(\d+\.){3}\d+$")]
     [String]
-    $ZabbixIP
+    $ZabbixIP,
+    [Parameter(Position=1, Mandatory=$FALSE)]
+    [ValidatePattern(".+")]
+    [String]
+    $ComputerName = $env:COMPUTERNAME
 )
 
 $cutoffDateTime = [System.DateTime]::UtcNow.AddDays(-30)
@@ -32,4 +40,4 @@ $oldComputers = Get-WsusComputer | Where-Object { $_.LastReportedStatusTime -le 
 
 # Push value to Zabbix
 #
-& ($env:ProgramFiles + "\Zabbix Agent\bin\win64\zabbix_sender.exe") ("-z", $ZabbixIP, "-p", "10051", "-s", $env:ComputerName, "-k", "wsus.oldcomputers", "-o", $oldComputers.Length)
+& ($env:ProgramFiles + "\Zabbix Agent\bin\win64\zabbix_sender.exe") ("-z", $ZabbixIP, "-p", "10051", "-s", $ComputerName, "-k", "wsus.oldcomputers", "-o", $oldComputers.Length)

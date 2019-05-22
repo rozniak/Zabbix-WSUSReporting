@@ -24,6 +24,10 @@
     .PARAMETER ZabbixIP
     The IP address of the Zabbix server/proxy to send the value to.
     
+    .PARAMETER ComputerName
+    The hostname that should be reported to Zabbix, in case the hostname you set up in
+    Zabbix isn't exactly the same as this computer's name.
+    
     .EXAMPLE
     Get-WsusUpdateCount.ps1 -UpdateApproval Approved -UpdateStatus Needed -ZabbixIP 10.0.0.240
 
@@ -42,7 +46,11 @@ Param (
     $UpdateStatus,
     [Parameter(Position=2, Mandatory=$TRUE)]
     [String]
-    $ZabbixIP
+    $ZabbixIP,
+    [Parameter(Position=3, Mandatory=$FALSE)]
+    [ValidatePattern(".+")]
+    [String]
+    $ComputerName = $env:COMPUTERNAME
 )
 
 # Load WSUS Administration library
@@ -145,4 +153,4 @@ switch ($UpdateStatus)
 
 # Push value to Zabbix
 #
-& ($env:ProgramFiles + "\Zabbix Agent\bin\win64\zabbix_sender.exe") ("-z", $ZabbixIP, "-p", "10051", "-s", $env:ComputerName, "-k", ("wsus.updates[" + $UpdateApproval + "," + $UpdateStatus + "]"), "-o", $wsusServer.GetUpdateCount($scope))
+& ($env:ProgramFiles + "\Zabbix Agent\bin\win64\zabbix_sender.exe") ("-z", $ZabbixIP, "-p", "10051", "-s", $ComputerName, "-k", ("wsus.updates[" + $UpdateApproval + "," + $UpdateStatus + "]"), "-o", $wsusServer.GetUpdateCount($scope))

@@ -8,8 +8,15 @@
     embedded as part of the parameters used in the scheduled task actions. The tasks are
     scheduled to run hourly into order to provide data to Zabbix via traps.
     
+    .PARAMETER ZabbixIP
+    The IP address of the Zabbix server/proxy to send the value to.
+    
+    .PARAMETER ComputerName
+    The hostname that should be reported to Zabbix, in case the hostname you set up in
+    Zabbix isn't exactly the same as this computer's name.
+    
     .EXAMPLE
-    Install-WsusZabbixTraps.ps1
+    Install-WsusZabbixTraps.ps1 10.0.0.240
 
     .NOTES
     Author: Rory Fewell
@@ -21,7 +28,11 @@ Param (
     [Parameter(Position=0, Mandatory=$TRUE)]
     [ValidatePattern("^(\d+\.){3}\d+$")]
     [String]
-    $ZabbixIP
+    $ZabbixIP,
+    [Parameter(Position=1, Mandatory=$FALSE)]
+    [ValidatePattern(".+")]
+    [String]
+    $ComputerName = $env:COMPUTERNAME
 )
 
 $globalTrigger = New-ScheduledTaskTrigger -Daily -At 8am
@@ -29,7 +40,7 @@ $systemPrincipal = New-ScheduledTaskPrincipal -UserID "NT AUTHORITY\SYSTEM" -Log
 
 # Set up content size scheduled task
 #
-$contentSizeAction = New-ScheduledTaskAction -Execute "powershell.exe" -Argument ('-NoProfile -NoLogo -File "' + $env:ProgramFiles + '\Zabbix Agent\WSUSREPORTS\Get-WsusContentSize.ps1" -ZabbixIP ' + $ZabbixIP)
+$contentSizeAction = New-ScheduledTaskAction -Execute "powershell.exe" -Argument ('-NoProfile -NoLogo -File "' + $env:ProgramFiles + '\Zabbix Agent\WSUSREPORTS\Get-WsusContentSize.ps1" -ZabbixIP ' + $ZabbixIP + ' -ComputerName ' + $ComputerName)
 
 $contentSizeTask = Register-ScheduledTask -TaskName "Calculate WSUSContent Size (Zabbix Trap)" -Trigger $globalTrigger -Action $contentSizeAction -Principal $systemPrincipal
 
@@ -48,7 +59,7 @@ $filterCombos = (
 
 foreach ($filter in $filterCombos)
 {
-    $updateAction = New-ScheduledTaskAction -Execute "powershell.exe" -Argument ('-NoProfile -NoLogo -File "' + $env:ProgramFiles + '\Zabbix Agent\WSUSREPORTS\Get-WsusUpdateCount.ps1" -UpdateApproval ' + $filter[0] + " -UpdateStatus " + $filter[1] + " -ZabbixIP " + $ZabbixIP)
+    $updateAction = New-ScheduledTaskAction -Execute "powershell.exe" -Argument ('-NoProfile -NoLogo -File "' + $env:ProgramFiles + '\Zabbix Agent\WSUSREPORTS\Get-WsusUpdateCount.ps1" -UpdateApproval ' + $filter[0] + " -UpdateStatus " + $filter[1] + " -ZabbixIP " + $ZabbixIP + ' -ComputerName ' + $ComputerName)
 
     $updateAction = Register-ScheduledTask -TaskName ("Count WSUS Updates of Filter '" + $filter[0] + ", " + $filter[1] + "' (Zabbix Trap)") -Trigger $globalTrigger -Action $updateAction  -Principal $systemPrincipal
 
@@ -58,7 +69,7 @@ foreach ($filter in $filterCombos)
 
 # Set up old computer count scheduled task
 #
-$oldComputersAction = New-ScheduledTaskAction -Execute "powershell.exe" -Argument ('-NoProfile -NoLogo -File "' + $env:ProgramFiles + '\Zabbix Agent\WSUSREPORTS\Get-WsusOldComputerCount.ps1" -ZabbixIP ' + $ZabbixIP)
+$oldComputersAction = New-ScheduledTaskAction -Execute "powershell.exe" -Argument ('-NoProfile -NoLogo -File "' + $env:ProgramFiles + '\Zabbix Agent\WSUSREPORTS\Get-WsusOldComputerCount.ps1" -ZabbixIP ' + $ZabbixIP + ' -ComputerName ' + $ComputerName)
 
 $oldComputersTask = Register-ScheduledTask -TaskName "Count Old Computers in WSUS (Zabbix Trap)" -Trigger $globalTrigger -Action $oldComputersAction  -Principal $systemPrincipal
 
