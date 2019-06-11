@@ -36,15 +36,17 @@ Param (
 
 # Find where WSUS content directory is located
 #
-$wsusProps = Get-ItemProperty -Path "HKLM:\Software\Microsoft\Update Services\Server\Setup"
-$contentDir = $wsusProps.ContentDir
+$wsusProps = Get-ItemProperty -Path "HKLM:\Software\Microsoft\Update Services\Server\Setup";
+$contentDir = $wsusProps.ContentDir;
 
 # Get the sum of all child files' size
 #
-$sizeProp = Get-ChildItem -Path $contentDir -Recurse | Measure-Object -Property Length -Sum | Select Sum
-$sizeInGB = $sizeProp.Sum / 1024 / 1024 / 1024
-$roundedGB = [Math]::Round($sizeInGB, 2)
+$sizeProp = Get-ChildItem -Path $contentDir -Recurse | Measure-Object -Property Length -Sum | Select Sum;
+$sizeInGB = $sizeProp.Sum / 1024 / 1024 / 1024;
+$roundedGB = [Math]::Round($sizeInGB, 2);
 
 # Push value to Zabbix
 #
-& ($env:ProgramFiles + "\Zabbix Agent\bin\win64\zabbix_sender.exe") ("-z", $ZabbixIP, "-p", "10051", "-s", $ComputerName, "-k", "wsus.contentsize", "-o", $roundedGB)
+$arch = [System.IntPtr]::Size * 8;
+
+& ($env:ProgramFiles + "\Zabbix Agent\bin\win" + $arch + "\zabbix_sender.exe") ("-z", $ZabbixIP, "-p", "10051", "-s", $ComputerName, "-k", "wsus.contentsize", "-o", $roundedGB);

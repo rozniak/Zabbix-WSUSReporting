@@ -55,25 +55,25 @@ Param (
 
 # Load WSUS Administration library
 #
-$assemblies = Get-ChildItem -Path "C:\Windows\Microsoft.NET\assembly\GAC_MSIL\Microsoft.UpdateServices.Administration" | Get-ChildItem
-$dllTarget = $assemblies[0].FullName
+$assemblies = Get-ChildItem -Path "C:\Windows\Microsoft.NET\assembly\GAC_MSIL\Microsoft.UpdateServices.Administration" | Get-ChildItem;
+$dllTarget = $assemblies[0].FullName;
 
-[void][Reflection.Assembly]::LoadFrom($dllTarget)
+[void][Reflection.Assembly]::LoadFrom($dllTarget);
 
 # Get WSUS server connection instance
 #
-$wsusServer = [Microsoft.UpdateServices.Administration.AdminProxy]::GetUpdateServer()
+$wsusServer = [Microsoft.UpdateServices.Administration.AdminProxy]::GetUpdateServer();
 
 # Retrieve the updates
 #
-$scope = New-Object -TypeName Microsoft.UpdateServices.Administration.UpdateScope
+$scope = New-Object -TypeName Microsoft.UpdateServices.Administration.UpdateScope;
 
 # Set up the approval scope
 #
 switch ($UpdateApproval)
 {
     "Any" {
-        $scope.ApprovedStates = [Microsoft.UpdateServices.Administration.ApprovedStates]::Any
+        $scope.ApprovedStates = [Microsoft.UpdateServices.Administration.ApprovedStates]::Any;
     }
 
     "AnyExceptDeclined" {
@@ -90,15 +90,15 @@ switch ($UpdateApproval)
     }
 
     "Declined" {
-        $scope.ApprovedStates = [Microsoft.UpdateServices.Administration.ApprovedStates]::Declined
+        $scope.ApprovedStates = [Microsoft.UpdateServices.Administration.ApprovedStates]::Declined;
     }
 
     "Unapproved" {
-        $scope.ApprovedStates = [Microsoft.UpdateServices.Administration.ApprovedStates]::NotApproved
+        $scope.ApprovedStates = [Microsoft.UpdateServices.Administration.ApprovedStates]::NotApproved;
     }
 
     default {
-        return -1
+        return -1;
     }
 }
 
@@ -107,11 +107,11 @@ switch ($UpdateApproval)
 switch ($UpdateStatus)
 {
     "Any" {
-        $scope.IncludedInstallationStates = [Microsoft.UpdateServices.Administration.UpdateInstallationStates]::All
+        $scope.IncludedInstallationStates = [Microsoft.UpdateServices.Administration.UpdateInstallationStates]::All;
     }
 
     "Failed" {
-        $scope.IncludedInstallationStates = [Microsoft.UpdateServices.Administration.UpdateInstallationStates]::Failed
+        $scope.IncludedInstallationStates = [Microsoft.UpdateServices.Administration.UpdateInstallationStates]::Failed;
     }
 
     "FailedOrNeeded" {
@@ -143,14 +143,16 @@ switch ($UpdateStatus)
     }
 
     "NoStatus" {
-        $scope.IncludedInstallationStates = [Microsoft.UpdateServices.Administration.UpdateInstallationStates]::Unknown
+        $scope.IncludedInstallationStates = [Microsoft.UpdateServices.Administration.UpdateInstallationStates]::Unknown;
     }
 
     default {
-        return -1
+        return -1;
     }
 }
 
 # Push value to Zabbix
 #
-& ($env:ProgramFiles + "\Zabbix Agent\bin\win64\zabbix_sender.exe") ("-z", $ZabbixIP, "-p", "10051", "-s", $ComputerName, "-k", ("wsus.updates[" + $UpdateApproval + "," + $UpdateStatus + "]"), "-o", $wsusServer.GetUpdateCount($scope))
+$arch = [System.IntPtr]::Size * 8;
+
+& ($env:ProgramFiles + "\Zabbix Agent\bin\win" + $arch + "\zabbix_sender.exe") ("-z", $ZabbixIP, "-p", "10051", "-s", $ComputerName, "-k", ("wsus.updates[" + $UpdateApproval + "," + $UpdateStatus + "]"), "-o", $wsusServer.GetUpdateCount($scope));
