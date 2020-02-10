@@ -53,16 +53,17 @@ Param (
     $ComputerName = $env:COMPUTERNAME
 )
 
+# Build file paths
+#
+$curDir = Split-Path -Parent $MyInvocation.MyCommand.Definition;
+
 # Load WSUS Administration library
 #
-$assemblies = Get-ChildItem -Path "C:\Windows\Microsoft.NET\assembly\GAC_MSIL\Microsoft.UpdateServices.Administration" | Get-ChildItem;
-$dllTarget = $assemblies[0].FullName;
-
-[void][Reflection.Assembly]::LoadFrom($dllTarget);
+Import-Module "$curDir\Get-WsusServerRaw.ps1";
 
 # Get WSUS server connection instance
 #
-$wsusServer = [Microsoft.UpdateServices.Administration.AdminProxy]::GetUpdateServer();
+$wsusServer = Get-WsusServerRaw;
 
 # Retrieve the updates
 #
