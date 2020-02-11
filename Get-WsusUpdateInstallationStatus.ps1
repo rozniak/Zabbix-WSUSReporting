@@ -7,11 +7,14 @@
     This script will search for an update by its title in order to retrieve information
     about its installation status reported by computers in WSUS.
 
-    .PARAMETER Title
-    The full update title - this will be used to search for the update.
+    .PARAMETER Guid
+    The GUID of the update.
 
-    .PARAMETER ComputerScope
+    .PARAMETER Scope
     The name of the computer group to count against, use Any for all computers.
+
+    .PARAMETER UpdateStatus
+    The status of the update, based on the UpdateInstallationState enumeration.
     
     .EXAMPLE
     Get-WsusUpdateInstallationStatus.ps1 -Guid c139f586-b22d-4e85-a769-47af7820a792 -Scope Any -UpdateStatus Installed
