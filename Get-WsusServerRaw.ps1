@@ -19,10 +19,9 @@
 
 # Load WSUS Administration library
 #
-$assemblies = Get-ChildItem -Path "C:\Windows\Microsoft.NET\assembly\GAC_MSIL\Microsoft.UpdateServices.Administration" | Get-ChildItem;
-$dllTarget = $assemblies[0].FullName;
-
-[void][Reflection.Assembly]::LoadFrom($dllTarget);
+[void][System.Reflection.Assembly]::Load(
+    "Microsoft.UpdateServices.Administration, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35"
+);
 
 # Function definition
 #
