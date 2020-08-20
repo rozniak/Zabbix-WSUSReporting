@@ -74,10 +74,8 @@ $contentSizeTask = Register-ScheduledTask -TaskName    $contentSizeTitle  `
                                           -Trigger     $globalTrigger     `
                                           -Action      $contentSizeAction `
                                           -Principal   $systemPrincipal   `
-                                          -Description $guid;
-
-$contentSizeTask.Triggers[0].Repetition.Interval = "PT1H";
-$contentSizeTask | Set-ScheduledTask;
+                                          -Description $guid              `
+                   | Out-Null;
 
 # Set up updates scheduled tasks
 #
@@ -119,10 +117,8 @@ foreach ($filter in $filterCombos)
                                          -Trigger     $globalTrigger   `
                                          -Action      $updateAction    `
                                          -Principal   $systemPrincipal `
-                                         -Description $guid;
-
-    $updateTask.Triggers[0].Repetition.Interval = "PT1H";
-    $updateTask | Set-ScheduledTask;
+                                         -Description $guid            `
+                  | Out-Null;
 }
 
 # Set up old computer count scheduled task
@@ -148,7 +144,5 @@ $oldComputersTask = Register-ScheduledTask -TaskName    $oldComputersTitle  `
                                            -Trigger     $globalTrigger      `
                                            -Action      $oldComputersAction `
                                            -Principal   $systemPrincipal    `
-                                           -Description $guid;
-
-$oldComputersTask.Triggers[0].Repetition.Interval = "PT1H";
-$oldComputersTask | Set-ScheduledTask;
+                                           -Description $guid               `
+                    | Out-Null;
