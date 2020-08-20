@@ -40,7 +40,12 @@ Param (
 
 $scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Definition;
 
-$globalTrigger   = New-ScheduledTaskTrigger -Daily -At 8am;
+$nextHour = [System.DateTime]::Now.AddHours(1);
+$oneHour  = New-TimeSpan -Hours 1;
+
+$globalTrigger   = New-ScheduledTaskTrigger -Once                         `
+                                            -At                 $nextHour `
+                                            -RepetitionInterval $oneHour;
 $guid            = Get-Content -Path "$scriptRoot\task-guid";
 $systemPrincipal = New-ScheduledTaskPrincipal -UserID    "NT AUTHORITY\SYSTEM" `
                                               -LogonType ServiceAccount        `
