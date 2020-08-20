@@ -163,7 +163,7 @@ $zabbixArgs   =
         "-s",
         $ComputerName,
         "-k",
-        "wsus.updates[$UpdateApproval, $UpdateStatus]",
+        "wsus.updates[$UpdateApproval,$UpdateStatus]",
         "-o",
         $wsusServer.GetUpdateCount($scope)
     );
