@@ -36,10 +36,27 @@ Param (
 )
 
 $cutoffDateTime = [System.DateTime]::UtcNow.AddDays(-30);
-$oldComputers = Get-WsusComputer | Where-Object { $_.LastReportedStatusTime -le $cutoffDateTime }
+$oldComputers   = Get-WsusComputer | Where-Object {
+                      $_.LastReportedStatusTime -le $cutoffDateTime
+                  };
 
 # Push value to Zabbix
 #
-$arch = [System.IntPtr]::Size * 8;
+$zabbixArgs   =
+    (
+        "-z",
+        $ZabbixIP,
+        "-p",
+        "10051",
+        "-s",
+        $ComputerName,
+        "-k",
+        "wsus.oldcomputers",
+        "-o",
+        $oldComputers.Length
+    );
+$zabbixSender = Get-ChildItem -Path   ($env:ProgramFiles + "\Zabbix Agent") `
+                              -Filter "zabbix_sender.exe"                   `
+                              -Recurse;
 
-& ($env:ProgramFiles + "\Zabbix Agent\bin\win" + $arch + "\zabbix_sender.exe") ("-z", $ZabbixIP, "-p", "10051", "-s", $ComputerName, "-k", "wsus.oldcomputers", "-o", $oldComputers.Length);
+& $zabbixSender.FullName $zabbixArgs;
