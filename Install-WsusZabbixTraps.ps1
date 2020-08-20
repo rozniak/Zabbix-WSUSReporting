@@ -35,46 +35,113 @@ Param (
     $ComputerName = $env:COMPUTERNAME
 )
 
-$scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Definition
+$scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Definition;
+$zabbixRoot = $env:ProgramFiles + "\Zabbix Agent";
 
-$globalTrigger   = New-ScheduledTaskTrigger -Daily -At 8am
-$guid            = Get-Content -Path "$scriptRoot\task-guid"
-$systemPrincipal = New-ScheduledTaskPrincipal -UserID "NT AUTHORITY\SYSTEM" -LogonType ServiceAccount -RunLevel Highest
+$globalTrigger   = New-ScheduledTaskTrigger -Daily -At 8am;
+$guid            = Get-Content -Path "$scriptRoot\task-guid";
+$systemPrincipal = New-ScheduledTaskPrincipal -UserID    "NT AUTHORITY\SYSTEM" `
+                                              -LogonType ServiceAccount        `
+                                              -RunLevel  Highest;
 
 # Set up content size scheduled task
 #
-$contentSizeAction = New-ScheduledTaskAction -Execute "powershell.exe" -Argument ('-NoProfile -NoLogo -File "' + $env:ProgramFiles + '\Zabbix Agent\WSUSREPORTS\Get-WsusContentSize.ps1" -ZabbixIP ' + $ZabbixIP + ' -ComputerName ' + $ComputerName)
+$contentSizeFilePath = "$zabbixRoot\WSUSREPORTS\Get-WsusContentSize.ps1";
+$contentSizeTitle    = "Calculate WSUSContent Size (Zabbix Trap)";
 
-$contentSizeTask = Register-ScheduledTask -TaskName "Calculate WSUSContent Size (Zabbix Trap)" -Trigger $globalTrigger -Action $contentSizeAction -Principal $systemPrincipal -Description $guid
+$contentSizeActionArgs =
+    (
+        "-NoProfile",
+        "-NoLogo",
+        "-File",
+        "`"$contentSizeFilePath`"",
+        "-ZabbixIP",
+        $ZabbixIP,
+        "-ComputerName",
+        $ComputerName
+    ) -join " ";
+$contentSizeAction     = New-ScheduledTaskAction -Execute  "powershell.exe"      `
+                                                 -Argument $contentSizeActionArgs;
 
-$contentSizeTask.Triggers[0].Repetition.Interval = "PT1H"
-$contentSizeTask | Set-ScheduledTask
+$contentSizeTask = Register-ScheduledTask -TaskName    $contentSizeTitle  `
+                                          -Trigger     $globalTrigger     `
+                                          -Action      $contentSizeAction `
+                                          -Principal   $systemPrincipal   `
+                                          -Description $guid;
+
+$contentSizeTask.Triggers[0].Repetition.Interval = "PT1H";
+$contentSizeTask | Set-ScheduledTask;
 
 # Set up updates scheduled tasks
 #
-$filterCombos = (
-    ("Approved", "Any"),
-    ("Approved", "Failed"),
-    ("Any", "Any"),
-    ("Unapproved", "Any"),
-    ("Unapproved", "Needed")
-)
+$filterCombos   = (
+    ( "Approved"   ,"Any"    ),
+    ( "Approved"   ,"Failed" ),
+    ( "Any"        ,"Any"    ),
+    ( "Unapproved" ,"Any"    ),
+    ( "Unapproved" ,"Needed" )
+);
+$updateFilePath = "$zabbixRoot\WSUSREPORTS\Get-WsusUpdateCount.ps1";
 
 foreach ($filter in $filterCombos)
 {
-    $updateAction = New-ScheduledTaskAction -Execute "powershell.exe" -Argument ('-NoProfile -NoLogo -File "' + $env:ProgramFiles + '\Zabbix Agent\WSUSREPORTS\Get-WsusUpdateCount.ps1" -UpdateApproval ' + $filter[0] + " -UpdateStatus " + $filter[1] + " -ZabbixIP " + $ZabbixIP + ' -ComputerName ' + $ComputerName)
+    $approval = $filter[0];
+    $status   = $filter[1];
+    $title    = "Count WSUS Updates of Filter '$approval, $status' (Zabbix Trap)";
 
-    $updateAction = Register-ScheduledTask -TaskName ("Count WSUS Updates of Filter '" + $filter[0] + ", " + $filter[1] + "' (Zabbix Trap)") -Trigger $globalTrigger -Action $updateAction  -Principal $systemPrincipal -Description $guid
+    $updateActionArgs =
+        (
+            "-NoProfile",
+            "-NoLogo",
+            "-File",
+            "`"$updateFilePath`"",
+            "-UpdateApproval",
+            $approval,
+            "-UpdateStatus",
+            $status,
+            "-ZabbixIP",
+            $ZabbixIP,
+            "-ComputerName",
+            $ComputerName
+        ) -join " ";
 
-    $updateAction.Triggers[0].Repetition.Interval = "PT1H"
-    $updateAction | Set-ScheduledTask
+    $updateAction     = New-ScheduledTaskAction -Execute  "powershell.exe" `
+                                                -Argument $updateActionArgs;
+ 
+    $updateTask = Register-ScheduledTask -TaskName    $title           `
+                                         -Trigger     $globalTrigger   `
+                                         -Action      $updateAction    `
+                                         -Principal   $systemPrincipal `
+                                         -Description $guid;
+
+    $updateTask.Triggers[0].Repetition.Interval = "PT1H";
+    $updateTask | Set-ScheduledTask;
 }
 
 # Set up old computer count scheduled task
 #
-$oldComputersAction = New-ScheduledTaskAction -Execute "powershell.exe" -Argument ('-NoProfile -NoLogo -File "' + $env:ProgramFiles + '\Zabbix Agent\WSUSREPORTS\Get-WsusOldComputerCount.ps1" -ZabbixIP ' + $ZabbixIP + ' -ComputerName ' + $ComputerName)
+$oldComputersFilePath = "$zabbixRoot\WSUSREPORTS\Get-WsusOldComputerCount.ps1";
+$oldComputersTitle    = "Count Old Computers in WSUS (Zabbix Trap)";
 
-$oldComputersTask = Register-ScheduledTask -TaskName "Count Old Computers in WSUS (Zabbix Trap)" -Trigger $globalTrigger -Action $oldComputersAction  -Principal $systemPrincipal -Description $guid
+$oldComputersActionArgs =
+    (
+        "-NoProfile",
+        "-NoLogo",
+        "-File",
+        "`"$oldComputersFilePath`"",
+        "-ZabbixIP",
+        $ZabbixIP,
+        "-ComputerName",
+        $ComputerName
+    ) -join " ";
+$oldComputersAction     = New-ScheduledTaskAction -Execute  "powershell.exe"       `
+                                                  -Argument $oldComputersActionArgs;
 
-$oldComputersTask.Triggers[0].Repetition.Interval = "PT1H"
-$oldComputersTask | Set-ScheduledTask
+$oldComputersTask = Register-ScheduledTask -TaskName    $oldComputersTitle  `
+                                           -Trigger     $globalTrigger      `
+                                           -Action      $oldComputersAction `
+                                           -Principal   $systemPrincipal    `
+                                           -Description $guid;
+
+$oldComputersTask.Triggers[0].Repetition.Interval = "PT1H";
+$oldComputersTask | Set-ScheduledTask;
