@@ -27,16 +27,18 @@
 Param (
     [Parameter(Position=0, Mandatory=$TRUE)]
     [ValidatePattern("^(\d+\.){3}\d+$")]
-    [String]
+    [string]
     $ZabbixIP,
     [Parameter(Position=1, Mandatory=$FALSE)]
     [ValidatePattern(".+")]
-    [String]
-    $ComputerName = $env:COMPUTERNAME
+    [string]
+    $ComputerName = $env:COMPUTERNAME,
+    [Parameter(Position=2, Mandatory=$FALSE)]
+    [string]
+    $ZabbixRoot   = $env:ProgramFiles + "\Zabbix Agent"
 )
 
 $scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Definition;
-$zabbixRoot = $env:ProgramFiles + "\Zabbix Agent";
 
 $globalTrigger   = New-ScheduledTaskTrigger -Daily -At 8am;
 $guid            = Get-Content -Path "$scriptRoot\task-guid";
@@ -46,7 +48,7 @@ $systemPrincipal = New-ScheduledTaskPrincipal -UserID    "NT AUTHORITY\SYSTEM" `
 
 # Set up content size scheduled task
 #
-$contentSizeFilePath = "$zabbixRoot\WSUSREPORTS\Get-WsusContentSize.ps1";
+$contentSizeFilePath = "$ZabbixRoot\WSUSREPORTS\Get-WsusContentSize.ps1";
 $contentSizeTitle    = "Calculate WSUSContent Size (Zabbix Trap)";
 
 $contentSizeActionArgs =
@@ -81,7 +83,7 @@ $filterCombos   = (
     ( "Unapproved" ,"Any"    ),
     ( "Unapproved" ,"Needed" )
 );
-$updateFilePath = "$zabbixRoot\WSUSREPORTS\Get-WsusUpdateCount.ps1";
+$updateFilePath = "$ZabbixRoot\WSUSREPORTS\Get-WsusUpdateCount.ps1";
 
 foreach ($filter in $filterCombos)
 {
@@ -120,7 +122,7 @@ foreach ($filter in $filterCombos)
 
 # Set up old computer count scheduled task
 #
-$oldComputersFilePath = "$zabbixRoot\WSUSREPORTS\Get-WsusOldComputerCount.ps1";
+$oldComputersFilePath = "$ZabbixRoot\WSUSREPORTS\Get-WsusOldComputerCount.ps1";
 $oldComputersTitle    = "Count Old Computers in WSUS (Zabbix Trap)";
 
 $oldComputersActionArgs =
