@@ -40,16 +40,36 @@ Param (
 
 $scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Definition;
 
+$forever  = [System.TimeSpan]::MaxValue;
 $nextHour = [System.DateTime]::Now.AddHours(1);
 $oneHour  = New-TimeSpan -Hours 1;
 
-$globalTrigger   = New-ScheduledTaskTrigger -Once                         `
-                                            -At                 $nextHour `
-                                            -RepetitionInterval $oneHour;
 $guid            = Get-Content -Path "$scriptRoot\task-guid";
 $systemPrincipal = New-ScheduledTaskPrincipal -UserID    "NT AUTHORITY\SYSTEM" `
                                               -LogonType ServiceAccount        `
                                               -RunLevel  Highest;
+
+# Windows 10 onwards expects RepetitionDuration to be omitted to make an indefinitely
+# repeating trigger, for older versions we must specify TimeSpan.MaxValue
+#
+$globalTrigger = $NULL;
+
+if ((Get-WmiObject -Class Win32_OperatingSystem).Version.StartsWith("10."))
+{
+    $globalTrigger =
+        New-ScheduledTaskTrigger -Once                         `
+                                 -At                 $nextHour `
+                                 -RepetitionInterval $oneHour;
+
+}
+else
+{
+    $globalTrigger =
+        New-ScheduledTaskTrigger -Once                         `
+                                 -At                 $nextHour `
+                                 -RepetitionInterval $oneHour  `
+                                 -RepetitionDuration $forever;
+}
 
 # Set up content size scheduled task
 #
