@@ -42,7 +42,7 @@ $wsusContentPath   = $wsusSettingsProps.ContentDir;
 
 # Get the sum of all child files' size
 #
-$sizeProp  = Get-ChildItem -Path $contentDir -Recurse |
+$sizeProp  = Get-ChildItem -Path $wsusContentPath -Recurse |
                  Measure-Object -Property Length -Sum |
                  Select Sum;
 $sizeInGB  = $sizeProp.Sum / 1024 / 1024 / 1024;
